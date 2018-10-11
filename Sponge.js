@@ -12,3 +12,12 @@ var BLAKE2B_IV = [
 	new Long(0x1f83d9abfb41bd6b),
 	new Long(0x5be0cd19137e2179),
 ]
+
+//Blake2b rotation
+function rotr64(w,c){
+
+	var a = w.shr_u(c);
+	var b = w.shr_u(64 - c);
+
+	return a.or(b);
+}
