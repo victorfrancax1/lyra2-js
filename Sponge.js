@@ -1,4 +1,4 @@
-// library used for uint_64 numbers
+// library used to emulate uint64_t numbers
 var Long  = require('long');
 
 //Blake2b IV array
@@ -23,6 +23,7 @@ function rotr64(w,c){
 }
 
 //Blake2b's G function
+//it appears that r and i arent used
 function blake2bG(r,i,a,b,c,d){
 	a = a.add(b);
 	d = rotr64(d.xor(a), 32);
@@ -35,6 +36,7 @@ function blake2bG(r,i,a,b,c,d){
 }
 
 //One Round of the Blake2b's compression function
+//it appears that r and i arent used
 function roundLyra(r){
 	G(r,0,v[ 0],v[ 4],v[ 8],v[12]);
     G(r,1,v[ 1],v[ 5],v[ 9],v[13]);
