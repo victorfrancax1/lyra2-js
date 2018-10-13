@@ -21,3 +21,27 @@ function rotr64(w,c){
 
 	return a.or(b);
 }
+
+//Blake2b's G function
+function blake2bG(r,i,a,b,c,d){
+	a = a.add(b);
+	d = rotr64(d.xor(a), 32);
+	c = c.add(d);
+	b = rotr64(b.xor(c), 24);
+	a = a.add(b);
+	d = rotr64(d.xor(a), 16);
+	c = c.add(d);
+	d = rotr64(b.xor(c), 63);
+}
+
+//One Round of the Blake2b's compression function
+function roundLyra(r){
+	G(r,0,v[ 0],v[ 4],v[ 8],v[12]);
+    G(r,1,v[ 1],v[ 5],v[ 9],v[13]);
+    G(r,2,v[ 2],v[ 6],v[10],v[14]);
+    G(r,3,v[ 3],v[ 7],v[11],v[15]);
+    G(r,4,v[ 0],v[ 5],v[10],v[15]);
+    G(r,5,v[ 1],v[ 6],v[11],v[12]); 
+    G(r,6,v[ 2],v[ 7],v[ 8],v[13]); 
+    G(r,7,v[ 3],v[ 4],v[ 9],v[14]);
+}
