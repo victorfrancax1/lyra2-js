@@ -1,5 +1,6 @@
 // library used to emulate uint64_t numbers
 var Long  = require('long');
+const RHO = 1
 
 //Blake2b IV array
 var BLAKE2B_IV = [
@@ -38,12 +39,29 @@ function blake2bG(r,i,a,b,c,d){
 //One Round of the Blake2b's compression function
 //it appears that r and i arent used
 function roundLyra(r){
-	G(r,0,v[ 0],v[ 4],v[ 8],v[12]);
-    G(r,1,v[ 1],v[ 5],v[ 9],v[13]);
-    G(r,2,v[ 2],v[ 6],v[10],v[14]);
-    G(r,3,v[ 3],v[ 7],v[11],v[15]);
-    G(r,4,v[ 0],v[ 5],v[10],v[15]);
-    G(r,5,v[ 1],v[ 6],v[11],v[12]); 
-    G(r,6,v[ 2],v[ 7],v[ 8],v[13]); 
-    G(r,7,v[ 3],v[ 4],v[ 9],v[14]);
+	G(r,0,state[ 0],state[ 4],state[ 8],state[12]);
+    G(r,1,state[ 1],state[ 5],state[ 9],state[13]);
+    G(r,2,state[ 2],state[ 6],state[10],state[14]);
+    G(r,3,state[ 3],state[ 7],state[11],state[15]);
+    G(r,4,state[ 0],state[ 5],state[10],state[15]);
+    G(r,5,state[ 1],state[ 6],state[11],state[12]); 
+    G(r,6,state[ 2],state[ 7],state[ 8],state[13]); 
+    G(r,7,state[ 3],state[ 4],state[ 9],state[14]);
+}
+
+//Executes G function, with all 12 rounds for Blake2b
+//@param state 		A 1024 bit (16 times of our custom long) to be processed by Blake2b
+function spongeLyra(state){
+	var i;
+	for (i = 0; i < 12; i++){
+		roundLyra(i);
+	}
+}
+
+//Executes a reduced version G function, with 1 round for Blake2b
+//@param state 		A 1024 bit (16 times of our custom long) to be processed by Blake2b
+function reducedSpongeLyra(state){
+	for (i = 0; i < RHO; i++){
+		roundLyra(i);
+	}
 }
