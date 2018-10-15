@@ -25,7 +25,6 @@ function rotr64(w,c){
 }
 
 //Blake2b's G function
-//it appears that r and i arent used
 function blake2bG(state,a,b,c,d){
 	state[a] = state[a].add(state[b]);
 	state[d] = rotr64(state[d].xor(state[a]), 32);
@@ -39,7 +38,6 @@ function blake2bG(state,a,b,c,d){
 }
 
 //One Round of the Blake2b's compression function
-//it appears that r and i arent used
 function roundLyra(state){
     state = blake2bG(state, 0, 4,  8, 12);
     state = blake2bG(state, 1, 5,  9, 13);
@@ -50,7 +48,6 @@ function roundLyra(state){
     state = blake2bG(state, 2, 7,  8, 13);
     state = blake2bG(state, 3, 4,  9, 14);
     return state;
-    
 }
 
 //Executes G function, with all 12 rounds for Blake2b
