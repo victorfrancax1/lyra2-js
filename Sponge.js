@@ -90,7 +90,7 @@ function initState(state){
 	return state;
 }
 
-//Absorb Functions
+//*** Absorb Functions ***
 
 //Performs an absorb operation of single column from "in", 
 //using the full-round G function as the internal permutation
@@ -107,6 +107,21 @@ function absorbColumn(state, inCol){
 	return spongeLyra(state);
 }
 
+
+//Performs an absorb operation for a single block (BLOCK_LEN_BLAKE2_SAFE_INT64 
+//words of type Long, 64 bits), using G function as the internal permutation
+ 
+//@param state 		The current state of the sponge 
+//@param inBlock    The block to be absorbed (BLOCK_LEN_BLAKE2_SAFE_INT64 words)
+function absorbBlockBlake2bSafe(state, inBlock){
+	
+	//XORs the first BLOCK_LEN_BLAKE2_SAFE_INT64 words of inBlock with the current state
+	for(var i = 0; i < 8; i++){
+		state[i]=state[i].xor(inBlock[i]);
+	}
+	//Applies the full-round transformation f to the sponge's state
+	return spongeLyra(state);
+}
 
 
 module.exports = {
