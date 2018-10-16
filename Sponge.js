@@ -5,8 +5,8 @@ const BLOCK_LEN_BLAKE2_SAFE_INT64 = 8;                                   //512 b
 const BLOCK_LEN_BLAKE2_SAFE_BYTES = (BLOCK_LEN_BLAKE2_SAFE_INT64 * 8)   //same as above, in bytes
 
 //default block length: 768 bits
-const BLOCK_LEN_INT64 = 12;  
-
+const BLOCK_LEN_INT64 = 12;
+const BLOCK_LEN_BYTES = (BLOCK_LEN_INT64 * 8);   
 
 //Blake2b IV array
 const BLAKE2B_IV = [
@@ -74,10 +74,12 @@ function reducedSpongeLyra(state){
 	return state;
 }
 
-//Initializes the Sponge's State. The first 512 bits are set to zeros and the remainder 
-// receive Blake2b's IV as per Blake2b's specification. 
-// 
-// @param state         The 1024-bit array to be initialized
+/*
+Initializes the Sponge's State. The first 512 bits are set to zeros and the remainder 
+   receive Blake2b's IV as per Blake2b's specification. 
+   
+   @param state         The 1024-bit array to be initialized
+*/
 function initState(state){
 	//Set first 512 bits to zeros (8 * 64bit numbers)
  	for(var i = 0; i < 8; i++){
@@ -92,11 +94,13 @@ function initState(state){
 
 //*** Absorb Functions ***
 
-//Performs an absorb operation of single column from "in", 
-//using the full-round G function as the internal permutation
+/*
+  Performs an absorb operation of single column from "in", 
+  using the full-round G function as the internal permutation
  
-//@param state The current state of the sponge 
-//@param inCol    The row whose column (BLOCK_LEN_INT64 words) should be absorbed 
+  @param state The current state of the sponge 
+  @param inCol    The row whose column (BLOCK_LEN_INT64 words) should be absorbed 
+*/
 function absorbColumn(state, inCol){
 
 	//absorbs the column picked
@@ -107,12 +111,13 @@ function absorbColumn(state, inCol){
 	return spongeLyra(state);
 }
 
-
-//Performs an absorb operation for a single block (BLOCK_LEN_BLAKE2_SAFE_INT64 
-//words of type Long, 64 bits), using G function as the internal permutation
+/*
+  Performs an absorb operation for a single block (BLOCK_LEN_BLAKE2_SAFE_INT64 
+  words of type Long, 64 bits), using G function as the internal permutation
  
-//@param state 		The current state of the sponge 
-//@param inBlock    The block to be absorbed (BLOCK_LEN_BLAKE2_SAFE_INT64 words)
+  @param state 		The current state of the sponge 
+  @param inBlock    The block to be absorbed (BLOCK_LEN_BLAKE2_SAFE_INT64 words)
+*/
 function absorbBlockBlake2bSafe(state, inBlock){
 	
 	//XORs the first BLOCK_LEN_BLAKE2_SAFE_INT64 words of inBlock with the current state
@@ -122,6 +127,32 @@ function absorbBlockBlake2bSafe(state, inBlock){
 	//Applies the full-round transformation f to the sponge's state
 	return spongeLyra(state);
 }
+
+//*** Squeeze Functions ***
+
+
+/*
+Performs a squeeze operation, using G function as the 
+  internal permutation
+ 
+  @param state      The current state of the sponge 
+  @param out        Array that will receive the data squeezed
+  @param len        The number of bytes to be squeezed into the "out" array
+*/
+function squeeze(state, len){
+	var fullBlocks = len/B
+}
+
+function reducedSqueezeRow0(){}
+
+//*** Duplex Functions ***
+
+function reducedDuplexRow1and2(){}
+function reducedDuplexRowFilling(){}
+function reducedDuplexRowWandering(){}
+function reducedDuplexRowWanderingParallel(){}
+
+//*** Module definitions ***
 
 
 module.exports = {
