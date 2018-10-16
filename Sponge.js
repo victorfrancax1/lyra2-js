@@ -75,20 +75,12 @@ function reducedSpongeLyra(state){
 // @param state         The 1024-bit array to be initialized
 function initState(state){
 	//Set first 512 bits to zeros (8 * 64bit numbers)
- 	state.push(
-		new Long(0, 0, true),
-		new Long(0, 0, true),
-		new Long(0, 0, true),
-		new Long(0, 0, true),
-		new Long(0, 0, true),
-		new Long(0, 0, true),
-		new Long(0, 0, true),
-		new Long(0, 0, true)
-	);
+ 	for(var i = 0; i < 8; i++){
+ 		state.push(Long.UZERO);
+ 	}
 	//Set next 8 to Blake2b's IV
-	var i;
-	for (i = 0; i < 8; i++){
-		state.push(BLAKE2B_IV[i])
+	for (var i = 0; i < 8; i++){
+		state.push(BLAKE2B_IV[i]);
 	}
 	return state;
 }
