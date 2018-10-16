@@ -1,6 +1,11 @@
 // library used to emulate uint64_t numbers
 var Long  = require('long');
-const RHO = 1
+const RHO = 1;
+const BLOCK_LEN_BLAKE2_SAFE_INT64 = 8;                                   //512 bits (=64 bytes, =8 uint64_t)
+const BLOCK_LEN_BLAKE2_SAFE_BYTES = (BLOCK_LEN_BLAKE2_SAFE_INT64 * 8)   //same as above, in bytes
+
+//default block length: 768 bits
+const BLOCK_LEN_INT64 = 12;  
 
 
 //Blake2b IV array
@@ -55,7 +60,7 @@ function roundLyra(state){
 function spongeLyra(state){
 	var i;
 	for (i = 0; i < 12; i++){
-		roundLyra(state);
+		state = roundLyra(state);
 	}
 	return state;
 }
@@ -64,7 +69,7 @@ function spongeLyra(state){
 //@param state 		A 1024 bit (16 times of our custom long) to be processed by Blake2b
 function reducedSpongeLyra(state){
 	for (i = 0; i < RHO; i++){
-		roundLyra(state);
+		state = roundLyra(state);
 	}
 	return state;
 }
@@ -85,7 +90,26 @@ function initState(state){
 	return state;
 }
 
+//Absorb Functions
+
+//Performs an absorb operation of single column from "in", 
+//using the full-round G function as the internal permutation
+ 
+//@param state The current state of the sponge 
+//@param inCol    The row whose column (BLOCK_LEN_INT64 words) should be absorbed 
+function absorbColumn(state, inCol){
+
+	//absorbs the column picked
+	for(var i = 0; i < BLOCK_LEN_INT64; i++){
+		state[i] = state[i].xor(inCol[i]);
+	}
+	//applies full-round transformation to the sponge's state
+	return spongeLyra(state);
+}
+
+
+
 module.exports = {
 	initState: initState,
-	roundLyra: roundLyra
+	spongeLyra: spongeLyra
 }
