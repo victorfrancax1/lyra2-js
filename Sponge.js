@@ -1,12 +1,16 @@
 // library used to emulate uint64_t numbers
 var Long  = require('long');
+//utils
+var utils = require('./utils');
+
 const RHO = 1;
 const BLOCK_LEN_BLAKE2_SAFE_INT64 = 8;                                   //512 bits (=64 bytes, =8 uint64_t)
 const BLOCK_LEN_BLAKE2_SAFE_BYTES = (BLOCK_LEN_BLAKE2_SAFE_INT64 * 8)   //same as above, in bytes
 
 //default block length: 768 bits
 const BLOCK_LEN_INT64 = 12;
-const BLOCK_LEN_BYTES = (BLOCK_LEN_INT64 * 8);   
+const BLOCK_LEN_BYTES = (BLOCK_LEN_INT64 * 8);
+const BLOCK_LEN_BITS = (BLOCK_LEN_BYTES * 8);   
 
 //Blake2b IV array
 const BLAKE2B_IV = [
@@ -80,8 +84,9 @@ Initializes the Sponge's State. The first 512 bits are set to zeros and the rema
    
    @param state         The 1024-bit array to be initialized
 */
-function initState(state){
+function initState(){
 	//Set first 512 bits to zeros (8 * 64bit numbers)
+	var state = [];
  	for(var i = 0; i < 8; i++){
  		state.push(Long.UZERO);
  	}
@@ -133,14 +138,37 @@ function absorbBlockBlake2bSafe(state, inBlock){
 
 /*
 Performs a squeeze operation, using G function as the 
-  internal permutation
+internal permutation
  
   @param state      The current state of the sponge 
-  @param out        Array that will receive the data squeezed
   @param len        The number of bytes to be squeezed into the "out" array
 */
 function squeeze(state, len){
-	var fullBlocks = len/B
+	//prep
+	len = 8 * len;
+	var fullBlocks = Math.floor(len / BLOCK_LEN_BITS);
+	var start = 0;
+	var end = BLOCK_LEN_BITS;
+	var out = ''
+	var state1024 = utils.longStringify(state);
+
+	if (fullBlocks == 0){
+		//squeezes only remaining bytes
+		out += state1024.substring(start, start + (len % BLOCK_LEN_BITS));
+	}
+	else{
+		//squeezes full blocks
+		for (var i = 0; i < fullBlocks; i++){
+			out += state1024.substring(start, end);
+			start = end;
+			end += BLOCK_LEN_BITS;
+			state = spongeLyra(state);
+			state1024 = utils.longStringify(state);
+		}
+		//squeezes remaining bytes
+		out += state1024.substring(start, start + (len % BLOCK_LEN_BITS));	
+	};
+	return [out, state];  
 }
 
 function reducedSqueezeRow0(){}
@@ -157,5 +185,6 @@ function reducedDuplexRowWanderingParallel(){}
 
 module.exports = {
 	initState: initState,
-	spongeLyra: spongeLyra
+	spongeLyra: spongeLyra,
+	squeeze: squeeze
 }
