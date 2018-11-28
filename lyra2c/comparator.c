@@ -2,7 +2,7 @@
 #include "./Sponge.h"
 #include "./Sponge.c"
 #include <inttypes.h>
-
+#include <stdlib.h>
 /**
  * Funcoes uteis para printing
  * 
@@ -129,6 +129,12 @@ void testAbsorbBlockBlake2Safe(uint64_t state[]) {
   printState(state);
 }
 
+void testSqueeze(uint64_t state[]) {
+  char* salvaAquiBruxao = malloc(sizeof(char) * 10);
+  squeeze(state, salvaAquiBruxao, 10);
+  printf(salvaAquiBruxao);
+}
+
 int main (int argc, char **argv) {
   int functionBeingTesting = 0;  
   uint64_t state[16];
@@ -176,7 +182,11 @@ int main (int argc, char **argv) {
     case 6:
       printf("Test absorbBlockBlake2Safe()\n");
       testAbsorbBlockBlake2Safe(state);
-      break;    
+      break;
+    case 7:
+      printf("Test squeeze()\n");
+      testSqueeze(state);
+      break;
     default:
       break;
   }
