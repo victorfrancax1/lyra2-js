@@ -2,3 +2,5 @@ node_modules/
 .nyc
 coverage
 .vscode
+.nyc_output
+.scannerwork

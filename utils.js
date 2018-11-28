@@ -1,3 +1,5 @@
+'use strict'
+
 function pad (num, size) {
   var s = num + ''
   while (s.length < size) s = '0' + s
@@ -6,8 +8,7 @@ function pad (num, size) {
 
 // receives long array (blake2b's state) and returns a binary string array with 64bit padding
 function long64Pad (arr) {
-  var padded = arr.map((x) => pad(x.toString(2), 64))
-  return padded
+  return arr.map((x) => pad(x.toString(2), 64))
 }
 
 /**
@@ -26,8 +27,8 @@ function getLongsStr (arr, name = 'Estado') {
  * Returns long str print for comparison
  * @param {import('long')} long
  */
-const getLongStrForComparison = (long) => {
-  return long.toString()
+const getLongStr = (long) => {
+  return `Dec: ${long.toString()}\n` + `Hex: ${pad(long.toString(16).toUpperCase(), 16)}\n` + `Bin: ${pad(long.toString(2), 64)}\n`
 }
 // receives long array (blake2b's state) and returns 1024bit binary string
 function longStringify (arr) {
@@ -39,5 +40,5 @@ module.exports = {
   long64Pad,
   longStringify,
   getLongsStr,
-  getLongStrForComparison
+  getLongStr
 }

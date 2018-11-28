@@ -1,3 +1,5 @@
+'use strict'
+
 const Long = require('long')
 const utils = require('./utils')
 
@@ -44,6 +46,7 @@ function initState () {
  * Blake2b rotation
  * @param {import('long')} w long
  * @param {Number} c number of rotations
+ * @returns {import('long')}
  */
 function rotr64 (w, c) {
   const a = w.shr_u(c)
