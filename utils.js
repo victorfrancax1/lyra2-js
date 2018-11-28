@@ -10,6 +10,13 @@ function long64Pad (arr) {
   return padded
 }
 
+function stateStr (arr) {
+	let str = 'Estado\n'
+	for (let i = 0; i < arr.length; i++) {
+		str += `Hex[${pad(i, 2)}]: ${arr[i].toString(16).toUpperCase()}\n`
+	}
+	console.log(str)
+}
 // receives long array (blake2b's state) and returns 1024bit binary string
 function longStringify (arr) {
   var result = long64Pad(arr).reduce((x, y) => x + y)
@@ -17,6 +24,7 @@ function longStringify (arr) {
 }
 
 module.exports = {
-  long64Pad: long64Pad,
-  longStringify: longStringify
+  long64Pad,
+  longStringify,
+  stateStr
 }

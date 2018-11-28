@@ -27,7 +27,7 @@ const BLAKE2B_IV = [
 // Blake2b rotation
 function rotr64 (w, c) {
   var a = w.shr_u(c)
-  var b = w.shr_u(64 - c)
+  var b = w.shl(64 - c)
 
   return a.or(b)
 }
@@ -36,12 +36,13 @@ function rotr64 (w, c) {
 function blake2bG (state, a, b, c, d) {
   state[a] = state[a].add(state[b])
   state[d] = rotr64(state[d].xor(state[a]), 32)
-  state[c] = state[c].add(d)
+  state[c] = state[c].add(state[d])
   state[b] = rotr64(state[b].xor(state[c]), 24)
   state[a] = state[a].add(state[b])
   state[d] = rotr64(state[d].xor(state[a]), 16)
   state[c] = state[c].add(state[d])
-  state[d] = rotr64(state[b].xor(state[c]), 63)
+  state[b] = rotr64(state[b].xor(state[c]), 63)
+  require('./utils').stateStr(state)
   return state
 }
 
@@ -177,5 +178,6 @@ function squeeze (state, len) {
 module.exports = {
   initState: initState,
   spongeLyra: spongeLyra,
-  squeeze: squeeze
+  squeeze: squeeze,
+  blake2bG: blake2bG
 }
