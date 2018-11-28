@@ -42,7 +42,7 @@ function blake2bG (state, a, b, c, d) {
   state[d] = rotr64(state[d].xor(state[a]), 16)
   state[c] = state[c].add(state[d])
   state[b] = rotr64(state[b].xor(state[c]), 63)
-  require('./utils').stateStr(state)
+  //require('./utils').stateStr(state)
   return state
 }
 
@@ -179,5 +179,9 @@ module.exports = {
   initState: initState,
   spongeLyra: spongeLyra,
   squeeze: squeeze,
-  blake2bG: blake2bG
+  blake2bG: blake2bG, 
+  roundLyra,
+  spongeLyra,
+  absorbColumn,
+  absorbBlockBlake2bSafe
 }
