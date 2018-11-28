@@ -10,12 +10,24 @@ function long64Pad (arr) {
   return padded
 }
 
-function stateStr (arr) {
-	let str = 'Estado\n'
-	for (let i = 0; i < arr.length; i++) {
-		str += `Hex[${pad(i, 2)}]: ${pad(arr[i].toString(16).toUpperCase(), 16)}\n`
-	}
-	console.log(str)
+/**
+ * Retorna uma string para print de um array de longs
+ * @param {import('long')[]} arr
+ */
+function getLongsStr (arr, name = 'Estado') {
+  let str = `${name}\n`
+  for (let i = 0; i < arr.length; i++) {
+    str += `Hex[${pad(i, 2)}]: ${pad(arr[i].toString(16).toUpperCase(), 16)}\n`
+  }
+  return str
+}
+
+/**
+ * Returns long str print for comparison
+ * @param {import('long')} long
+ */
+const getLongStrForComparison = (long) => {
+  return long.toString()
 }
 // receives long array (blake2b's state) and returns 1024bit binary string
 function longStringify (arr) {
@@ -26,5 +38,6 @@ function longStringify (arr) {
 module.exports = {
   long64Pad,
   longStringify,
-  stateStr
+  getLongsStr,
+  getLongStrForComparison
 }

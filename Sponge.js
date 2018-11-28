@@ -1,9 +1,7 @@
-// library used to emulate uint64_t numbers
-var Long = require('long')
-// utils
-var utils = require('./utils')
+const Long = require('long')
+const utils = require('./utils')
 
-const RHO = 1
+// const RHO = 1
 // const BLOCK_LEN_BLAKE2_SAFE_INT64 = 8 // 512 bits (=64 bytes, =8 uint64_t)
 // const BLOCK_LEN_BLAKE2_SAFE_BYTES = (BLOCK_LEN_BLAKE2_SAFE_INT64 * 8) // same as above, in bytes
 
@@ -24,11 +22,32 @@ const BLAKE2B_IV = [
   new Long(0x137e2179, 0x5be0cd19, true)
 ]
 
-// Blake2b rotation
-function rotr64 (w, c) {
-  var a = w.shr_u(c)
-  var b = w.shl(64 - c)
+/**
+ * Initializes the Sponge's State. The first 512 bits are set to zeros and the remainder
+   receive Blake2b's IV as per Blake2b's specification.
+  @returns {import('long')[]} state - The 1024-bit array to be initialized
+ */
+function initState () {
+  // Set first 512 bits to zeros (8 * 64bit numbers)
+  const state = []
+  for (let i = 0; i < 8; i++) {
+    state.push(Long.UZERO)
+  }
+  // Set next 8 to Blake2b's IV
+  for (let i = 0; i < 8; i++) {
+    state.push(BLAKE2B_IV[i])
+  }
+  return state
+}
 
+/**
+ * Blake2b rotation
+ * @param {import('long')} w long
+ * @param {Number} c number of rotations
+ */
+function rotr64 (w, c) {
+  const a = w.shr_u(c)
+  const b = w.shl(64 - c)
   return a.or(b)
 }
 
@@ -42,7 +61,6 @@ function blake2bG (state, a, b, c, d) {
   state[d] = rotr64(state[d].xor(state[a]), 16)
   state[c] = state[c].add(state[d])
   state[b] = rotr64(state[b].xor(state[c]), 63)
-  //require('./utils').stateStr(state)
   return state
 }
 
@@ -71,34 +89,16 @@ function spongeLyra (state) {
   return state
 }
 
-/**
- * Executes a reduced version G function, with 1 round for Blake2b
- * @param {*} state A 1024 bit (16 times of our custom long) to be processed by Blake2b
- */
-function reducedSpongeLyra (state) {
-  for (let i = 0; i < RHO; i++) {
-    state = roundLyra(state)
-  }
-  return state
-}
-
-/**
- * Initializes the Sponge's State. The first 512 bits are set to zeros and the remainder
-   receive Blake2b's IV as per Blake2b's specification.
-  @returns {*} state         The 1024-bit array to be initialized
- */
-function initState () {
-  // Set first 512 bits to zeros (8 * 64bit numbers)
-  const state = []
-  for (let i = 0; i < 8; i++) {
-    state.push(Long.UZERO)
-  }
-  // Set next 8 to Blake2b's IV
-  for (let i = 0; i < 8; i++) {
-    state.push(BLAKE2B_IV[i])
-  }
-  return state
-}
+// /**
+//  * Executes a reduced version G function, with 1 round for Blake2b
+//  * @param {*} state A 1024 bit (16 times of our custom long) to be processed by Blake2b
+//  */
+// function reducedSpongeLyra (state) {
+//   for (let i = 0; i < RHO; i++) {
+//     state = roundLyra(state)
+//   }
+//   return state
+// }
 
 //* ** Absorb Functions ***
 
@@ -176,12 +176,14 @@ function squeeze (state, len) {
 //* ** Module definitions ***
 
 module.exports = {
-  initState: initState,
-  spongeLyra: spongeLyra,
-  squeeze: squeeze,
-  blake2bG: blake2bG, 
-  roundLyra,
+  BLAKE2B_IV,
+  initState,
+  rotr64,
   spongeLyra,
+  squeeze,
+  blake2bG,
+  roundLyra,
+  // spongeLyra,
   absorbColumn,
   absorbBlockBlake2bSafe
 }

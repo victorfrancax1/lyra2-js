@@ -3,6 +3,10 @@
 #include "./Sponge.c"
 #include <inttypes.h>
 
+/**
+ * Funcoes uteis para printing
+ * 
+ * */
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define OCT_BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
@@ -19,7 +23,7 @@
 void print64ulong (uint64_t pica) {
   printf("Dec: %"PRIu64"\n", pica);
   printf("Hex: %016llX\n", pica);
-  printf("Bin: "OCT_BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(pica>>56), BYTE_TO_BINARY(pica>>48), BYTE_TO_BINARY(pica>>40), BYTE_TO_BINARY(pica>>32), BYTE_TO_BINARY(pica>>24), BYTE_TO_BINARY(pica>>16), BYTE_TO_BINARY(pica>>8), BYTE_TO_BINARY(pica));
+  printf("Bin: "OCT_BYTE_TO_BINARY_PATTERN"\n\n", BYTE_TO_BINARY(pica>>56), BYTE_TO_BINARY(pica>>48), BYTE_TO_BINARY(pica>>40), BYTE_TO_BINARY(pica>>32), BYTE_TO_BINARY(pica>>24), BYTE_TO_BINARY(pica>>16), BYTE_TO_BINARY(pica>>8), BYTE_TO_BINARY(pica));
 }
 
 void printState(uint64_t state[]) {
@@ -42,18 +46,63 @@ void printState(uint64_t state[]) {
   printf("Hex[15]: %016llX\n\n", state[15]);
 }
 
-int main() {
+/*
+Converte string para int
+*/
+int my_getnbr(char *str)
+{
+  int result;
+  int puiss;
 
-/*Blake2b IV Array*/
-  uint64_t ref[8] =
+  result = 0;
+  puiss = 1;
+  while (('-' == (*str)) || ((*str) == '+'))
   {
-    0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL,
-    0x3c6ef372fe94f82bULL, 0xa54ff53a5f1d36f1ULL,
-    0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL,
-    0x1f83d9abfb41bd6bULL, 0x5be0cd19137e2179ULL
-  };
-  // 0x6a09e667f3bcc908ULL
+      if (*str == '-')
+        puiss = puiss * -1;
+      str++;
+  }
+  while ((*str >= '0') && (*str <= '9'))
+  {
+      result = (result * 10) + ((*str) - '0');
+      str++;
+  }
+  return (result * puiss);
+}
+
+// Declaracao de variaveis de teste
+uint64_t ref[8] =
+{
+  0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL,
+  0x3c6ef372fe94f82bULL, 0xa54ff53a5f1d36f1ULL,
+  0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL,
+  0x1f83d9abfb41bd6bULL, 0x5be0cd19137e2179ULL
+};
+
+/**
+ * "Testes" 
+ * */
+
+void testInitState(uint64_t state[]) {
+  printState(state);
+}
+
+void testRotr64() {
   uint64_t rot5 = rotr64(ref[0], 5);
+  print64ulong(rot5);
+}
+
+int main(int argc, char **argv) {
+
+  int functionBeingTesting = 0;
+
+  if (argc >= 2) {
+    functionBeingTesting = my_getnbr(argv[1]);
+  }
+
+  printf("Function being tested: %d\n", functionBeingTesting);
+  
+  
   uint64_t state[16];
 
   uint64_t column = 0x1f83d9aCDbAAbd6bULL;
@@ -67,40 +116,50 @@ int main() {
 
   initState(state);
 
-  printf("This will be our comparator file:\n\n\n");
+  switch(functionBeingTesting) {
+    case 0: // initState
+      printf("Test initState()\n");
+      testInitState(state);
+      break;
+    case 1: // rotr64()
+      printf("Test rotr64()\n");
+      testRotr64();
+      break;
+    default:
+      break;
+  }
 
-  printf("Sponge.c/h internals:\n\n");
+  // printf("This will be our comparator file:\n\n\n");
+  // printf("Sponge.c/h internals:\n\n");
+  // printf("Referencia: %" PRIu64 "\n", ref[0]);
+  // printf("\nReferencia em binario:\n");
+  // print64ulong(ref[0]);
 
-  printf("Referencia: %" PRIu64 "\n", ref[0]);
+  // printf("\nRotaciona 5 vezes:\n");
+  // print64ulong(rot5);
 
-  printf("\nReferencia em binario:\n");
-  print64ulong(ref[0]);
-
-  printf("\nRotaciona 5 vezes:\n");
-  print64ulong(rot5);
-
-  printf("\nEstado inicial:\n");
-  printState(state);
-  
-  // printf("\nG 0, 1, 10, 11, 12, 13:\n");
-  // G(0, 1, state[10], state[11], state[12], state[13]);
+  // printf("\nEstado inicial:\n");
   // printState(state);
   
-  // printf("ROUND LYRA: \n");
-  // ROUND_LYRA(0, state);
+  // // printf("\nG 0, 1, 10, 11, 12, 13:\n");
+  // // G(0, 1, state[10], state[11], state[12], state[13]);
+  // // printState(state);
+  
+  // // printf("ROUND LYRA: \n");
+  // // ROUND_LYRA(0, state);
+  // // printState(state);
+
+  // printf("spongeLyra(state)\n");
+  // spongeLyra(state);
   // printState(state);
 
-  printf("spongeLyra(state)\n");
-  spongeLyra(state);
-  printState(state);
+  // // printf("absorbColumn(state, column)\n");
+  // // absorbColumn(&state, &columns);
+  // // printState(state);
 
-  // printf("absorbColumn(state, column)\n");
-  // absorbColumn(&state, &columns);
+  // printf("absorbBlockBlake2Safe(state, column)\n");
+  // absorbBlockBlake2Safe(&state, &columns);
   // printState(state);
-
-  printf("absorbBlockBlake2Safe(state, column)\n");
-  absorbBlockBlake2Safe(&state, &columns);
-  printState(state);
 
   printf("\n\n");
   return 0;
