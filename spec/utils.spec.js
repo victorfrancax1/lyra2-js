@@ -4,14 +4,6 @@ const path = require('path')
 const mainPath = require.main.filename.includes('node_modules') ? path.join(path.dirname(require.main.filename), '../../..') : path.dirname(require.main.filename)
 const { exec } = require('child_process')
 
-const COMPARATOR_TEST = {
-  InitState: 0,
-  Rotr64: 1,
-  blake2bG: 2,
-  roundLyra: 3,
-  spongeLyra: 4
-}
-
 /**
  * @typedef {Object} ExecCmdReturn
  * @property {String} stout raw output from stdout
@@ -61,7 +53,6 @@ const getValidOutputFromTest = (cmdReturn) => {
 }
 
 module.exports = {
-  COMPARATOR_TEST,
   runTest,
   getValidOutputFromTest
 }

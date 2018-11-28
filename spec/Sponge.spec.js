@@ -1,6 +1,6 @@
 const { expect } = require('chai')
-const { COMPARATOR_TEST, getValidOutputFromTest, runTest } = require('./utils.spec')
-const { tests } = require('./funcsTests.spec')
+const { getValidOutputFromTest, runTest } = require('./utils.spec')
+const { tests, COMPARATOR_TEST } = require('./comparator.spec')
 
 const assertTest = async (num) => {
   const cResult = await runTest(num)
@@ -8,28 +8,22 @@ const assertTest = async (num) => {
   expect(cOutput).to.be.equal(tests[num]())
 }
 
+const getTests = () => {
+  const tests = []
+  let i = 0
+  for (const key in COMPARATOR_TEST) {
+    const padded = i < 10 ? '0' + i : i
+    tests.push({
+      name: `${padded}: #${key}: Should work fine`,
+      func: async () => { await assertTest(COMPARATOR_TEST[key]) }
+    })
+    i++
+  }
+  return tests
+}
+
 describe('Sponge', () => {
-  it('00: #initState: Should work fine', async () => {
-    await assertTest(COMPARATOR_TEST.InitState)
+  getTests().map(t => {
+    it(t.name, t.func)
   })
-
-  it('01: #rotr64: Should work fine', async () => {
-    await assertTest(COMPARATOR_TEST.Rotr64)
-  })
-
-  it('02: #blake2bG: Should work fine', async () => {
-    await assertTest(COMPARATOR_TEST.blake2bG)
-  })
-
-  it('03: #roundLyra: Should work fine', async () => {
-    await assertTest(COMPARATOR_TEST.roundLyra)
-  })
-
-  // it('04: #spongeLyra: Should work fine', async () => {
-  //   const cResult = await runTest(COMPARATOR_TEST.spongeLyra)
-  //   const cOutput = getValidOutputFromTest(cResult)
-  //   const state = initState()
-  //   const spongeOutput = getLongsStr(spongeLyra(state))
-  //   expect(cOutput).to.be.equal(spongeOutput)
-  // })
 })

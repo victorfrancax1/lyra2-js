@@ -143,9 +143,11 @@ int main(int argc, char **argv) {
     case 3: // ROUND_LYRA
       printf("Test ROUND_LYRA()\n");
       testRoundLyra(state);
+      break;
     case 4: // SpongeLyra
       printf("Test SpongeLyra()\n");
       testSpongeLyra(state);
+      break;
     default:
       break;
   }
