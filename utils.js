@@ -13,7 +13,7 @@ function long64Pad (arr) {
 function stateStr (arr) {
 	let str = 'Estado\n'
 	for (let i = 0; i < arr.length; i++) {
-		str += `Hex[${pad(i, 2)}]: ${arr[i].toString(16).toUpperCase()}\n`
+		str += `Hex[${pad(i, 2)}]: ${pad(arr[i].toString(16).toUpperCase(), 16)}\n`
 	}
 	console.log(str)
 }
