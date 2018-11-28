@@ -107,8 +107,29 @@ void testSpongeLyra(uint64_t state[]) {
   printState(state);
 }
 
-int main(int argc, char **argv) {
+void testAbsorbColumn(uint64_t state[]) {
+  uint64_t columns[12] = {
+    0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL,
+    0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL,
+    0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL,
+    0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL
+  };
+  absorbColumn(state, columns);
+  printState(state);
+}
 
+void testAbsorbBlockBlake2Safe(uint64_t state[]) {
+  uint64_t columns[12] = {
+    0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL,
+    0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL,
+    0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL,
+    0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL
+  };
+  absorbBlockBlake2Safe(state, columns);
+  printState(state);
+}
+
+int main (int argc, char **argv) {
   int functionBeingTesting = 0;  
   uint64_t state[16];
   uint64_t column = 0x1f83d9aCDbAAbd6bULL;
@@ -148,17 +169,17 @@ int main(int argc, char **argv) {
       printf("Test SpongeLyra()\n");
       testSpongeLyra(state);
       break;
+    case 5:
+      printf("Test absorbColumn()\n");
+      testAbsorbColumn(state);
+      break;
+    case 6:
+      printf("Test absorbBlockBlake2Safe()\n");
+      testAbsorbBlockBlake2Safe(state);
+      break;    
     default:
       break;
   }
-
-  // // printf("absorbColumn(state, column)\n");
-  // // absorbColumn(&state, &columns);
-  // // printState(state);
-
-  // printf("absorbBlockBlake2Safe(state, column)\n");
-  // absorbBlockBlake2Safe(&state, &columns);
-  // printState(state);
 
   printf("\n\n");
   return 0;

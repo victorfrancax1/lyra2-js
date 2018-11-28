@@ -104,6 +104,36 @@ function spongeLyra (state) {
   return state
 }
 
+/**
+ *   Performs an absorb operation of single column from "in", using the full-round G function as the internal permutation
+ * @param {import('long')} state The current state of the sponge
+ * @param {import('long')[][]} inCol The row whose column (BLOCK_LEN_INT64 words) should be absorbed
+ * @returns {import('long')[]}
+ */
+function absorbColumn (state, inCol) {
+  // absorbs the column picked
+  for (let i = 0; i < BLOCK_LEN_INT64; i++) {
+    state[i] = state[i].xor(inCol[i])
+  }
+  // applies full-round transformation to the sponge's state
+  return spongeLyra(state)
+}
+
+/**
+ * Performs an absorb operation for a single block (BLOCK_LEN_BLAKE2_SAFE_INT64 words of type Long, 64 bits), using G function as the internal permutation
+ * @param {import('long')[]} state The current state of the sponge
+ * @param {import('long')[][]} inBlock The block to be absorbed (BLOCK_LEN_BLAKE2_SAFE_INT64 words)
+ * @returns {import('long')[]}
+ */
+function absorbBlockBlake2bSafe (state, inBlock) {
+  // XORs the first BLOCK_LEN_BLAKE2_SAFE_INT64 words of inBlock with the current state
+  for (let i = 0; i < 8; i++) {
+    state[i] = state[i].xor(inBlock[i])
+  }
+  // Applies the full-round transformation f to the sponge's state
+  return spongeLyra(state)
+}
+
 // /**
 //  * Executes a reduced version G function, with 1 round for Blake2b
 //  * @param {*} state A 1024 bit (16 times of our custom long) to be processed by Blake2b
@@ -116,34 +146,6 @@ function spongeLyra (state) {
 // }
 
 //* ** Absorb Functions ***
-
-/**
- *   Performs an absorb operation of single column from "in", using the full-round G function as the internal permutation
- * @param {import('long')} state The current state of the sponge
- * @param {import('long')[]} inCol The row whose column (BLOCK_LEN_INT64 words) should be absorbed
- */
-function absorbColumn (state, inCol) {
-  // absorbs the column picked
-  for (var i = 0; i < BLOCK_LEN_INT64; i++) {
-    state[i] = state[i].xor(inCol[i])
-  }
-  // applies full-round transformation to the sponge's state
-  return spongeLyra(state)
-}
-
-/**
- * Performs an absorb operation for a single block (BLOCK_LEN_BLAKE2_SAFE_INT64 words of type Long, 64 bits), using G function as the internal permutation
- * @param {*} state The current state of the sponge
- * @param {*} inBlock The block to be absorbed (BLOCK_LEN_BLAKE2_SAFE_INT64 words)
- */
-function absorbBlockBlake2bSafe (state, inBlock) {
-  // XORs the first BLOCK_LEN_BLAKE2_SAFE_INT64 words of inBlock with the current state
-  for (var i = 0; i < 8; i++) {
-    state[i] = state[i].xor(inBlock[i])
-  }
-  // Applies the full-round transformation f to the sponge's state
-  return spongeLyra(state)
-}
 
 //* ** Squeeze Functions ***
 
@@ -197,7 +199,7 @@ module.exports = {
   blake2bG,
   roundLyra,
   spongeLyra,
-  squeeze,
   absorbColumn,
-  absorbBlockBlake2bSafe
+  absorbBlockBlake2bSafe,
+  squeeze
 }
