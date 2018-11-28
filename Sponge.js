@@ -54,7 +54,14 @@ function rotr64 (w, c) {
   return a.or(b)
 }
 
-// Blake2b's G function
+/**
+ * Blake2b's G function
+ * @param {import('long')[]} state
+ * @param {Number} a
+ * @param {Number} b
+ * @param {Number} c
+ * @param {Number} d
+ */
 function blake2bG (state, a, b, c, d) {
   state[a] = state[a].add(state[b])
   state[d] = rotr64(state[d].xor(state[a]), 32)
@@ -182,9 +189,9 @@ module.exports = {
   BLAKE2B_IV,
   initState,
   rotr64,
+  blake2bG,
   spongeLyra,
   squeeze,
-  blake2bG,
   roundLyra,
   // spongeLyra,
   absorbColumn,

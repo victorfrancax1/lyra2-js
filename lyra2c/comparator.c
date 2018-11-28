@@ -92,27 +92,28 @@ void testRotr64() {
   print64ulong(rot5);
 }
 
+void testblake2bG(uint64_t state[]) {
+  G(0, 1, state[10], state[11], state[12], state[13]);
+  printState(state);
+}
+
 int main(int argc, char **argv) {
 
-  int functionBeingTesting = 0;
-
-  if (argc >= 2) {
-    functionBeingTesting = my_getnbr(argv[1]);
-  }
-
-  printf("Function being tested: %d\n", functionBeingTesting);
-  
-  
+  int functionBeingTesting = 0;  
   uint64_t state[16];
-
   uint64_t column = 0x1f83d9aCDbAAbd6bULL;
-
   uint64_t columns[12] = {
     0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL,
     0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL,
     0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL,
     0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL
   };
+
+  if (argc >= 2) {
+    functionBeingTesting = my_getnbr(argv[1]);
+  }
+
+  printf("Function being tested: %d\n", functionBeingTesting);
 
   initState(state);
 
@@ -125,25 +126,14 @@ int main(int argc, char **argv) {
       printf("Test rotr64()\n");
       testRotr64();
       break;
+    case 2: // blake2bG()
+      printf("Test blake2bG()\n");
+      testblake2bG(state);
+      break;
     default:
       break;
   }
 
-  // printf("This will be our comparator file:\n\n\n");
-  // printf("Sponge.c/h internals:\n\n");
-  // printf("Referencia: %" PRIu64 "\n", ref[0]);
-  // printf("\nReferencia em binario:\n");
-  // print64ulong(ref[0]);
-
-  // printf("\nRotaciona 5 vezes:\n");
-  // print64ulong(rot5);
-
-  // printf("\nEstado inicial:\n");
-  // printState(state);
-  
-  // // printf("\nG 0, 1, 10, 11, 12, 13:\n");
-  // // G(0, 1, state[10], state[11], state[12], state[13]);
-  // // printState(state);
   
   // // printf("ROUND LYRA: \n");
   // // ROUND_LYRA(0, state);
