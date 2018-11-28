@@ -97,6 +97,16 @@ void testblake2bG(uint64_t state[]) {
   printState(state);
 }
 
+void testRoundLyra(uint64_t state[]) {
+  ROUND_LYRA(0, state);
+  printState(state);
+}
+
+void testSpongeLyra(uint64_t state[]) {
+  spongeLyra(state);
+  printState(state);
+}
+
 int main(int argc, char **argv) {
 
   int functionBeingTesting = 0;  
@@ -130,18 +140,15 @@ int main(int argc, char **argv) {
       printf("Test blake2bG()\n");
       testblake2bG(state);
       break;
+    case 3: // ROUND_LYRA
+      printf("Test ROUND_LYRA()\n");
+      testRoundLyra(state);
+    case 4: // SpongeLyra
+      printf("Test SpongeLyra()\n");
+      testSpongeLyra(state);
     default:
       break;
   }
-
-  
-  // // printf("ROUND LYRA: \n");
-  // // ROUND_LYRA(0, state);
-  // // printState(state);
-
-  // printf("spongeLyra(state)\n");
-  // spongeLyra(state);
-  // printState(state);
 
   // // printf("absorbColumn(state, column)\n");
   // // absorbColumn(&state, &columns);

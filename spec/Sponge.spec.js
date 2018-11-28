@@ -1,32 +1,35 @@
 const { expect } = require('chai')
 const { COMPARATOR_TEST, getValidOutputFromTest, runTest } = require('./utils.spec')
-const { getLongStr, getLongsStr } = require('../utils')
-const {
-  BLAKE2B_IV,
-  initState,
-  rotr64,
-  blake2bG
-} = require('../Sponge')
+const { tests } = require('./funcsTests.spec')
+
+const assertTest = async (num) => {
+  const cResult = await runTest(num)
+  const cOutput = getValidOutputFromTest(cResult)
+  expect(cOutput).to.be.equal(tests[num]())
+}
+
 describe('Sponge', () => {
-  it('#initState: Should work fine', async () => {
-    const cResult = await runTest(COMPARATOR_TEST.InitState)
-    const cOutput = getValidOutputFromTest(cResult)
-    const spongeOutput = getLongsStr(initState())
-    expect(cOutput).to.be.equal(spongeOutput)
+  it('00: #initState: Should work fine', async () => {
+    await assertTest(COMPARATOR_TEST.InitState)
   })
 
-  it('#rotr64: Should work fine', async () => {
-    const cResult = await runTest(COMPARATOR_TEST.Rotr64)
-    const cOutput = getValidOutputFromTest(cResult)
-    const spongeOutput = getLongStr(rotr64(BLAKE2B_IV[0], 5))
-    expect(cOutput).to.be.equal(spongeOutput)
+  it('01: #rotr64: Should work fine', async () => {
+    await assertTest(COMPARATOR_TEST.Rotr64)
   })
 
-  it('#blake2bG: Should work fine', async () => {
-    const cResult = await runTest(COMPARATOR_TEST.blake2bG)
-    const cOutput = getValidOutputFromTest(cResult)
-    const state = initState()
-    const spongeOutput = getLongsStr(blake2bG(state, 10, 11, 12, 13))
-    expect(cOutput).to.be.equal(spongeOutput)
+  it('02: #blake2bG: Should work fine', async () => {
+    await assertTest(COMPARATOR_TEST.blake2bG)
   })
+
+  it('03: #roundLyra: Should work fine', async () => {
+    await assertTest(COMPARATOR_TEST.roundLyra)
+  })
+
+  // it('04: #spongeLyra: Should work fine', async () => {
+  //   const cResult = await runTest(COMPARATOR_TEST.spongeLyra)
+  //   const cOutput = getValidOutputFromTest(cResult)
+  //   const state = initState()
+  //   const spongeOutput = getLongsStr(spongeLyra(state))
+  //   expect(cOutput).to.be.equal(spongeOutput)
+  // })
 })

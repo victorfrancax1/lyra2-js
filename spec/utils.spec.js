@@ -7,7 +7,9 @@ const { exec } = require('child_process')
 const COMPARATOR_TEST = {
   InitState: 0,
   Rotr64: 1,
-  blake2bG: 2
+  blake2bG: 2,
+  roundLyra: 3,
+  spongeLyra: 4
 }
 
 /**

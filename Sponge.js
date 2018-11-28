@@ -61,6 +61,7 @@ function rotr64 (w, c) {
  * @param {Number} b
  * @param {Number} c
  * @param {Number} d
+ * @returns {import('long')[]}
  */
 function blake2bG (state, a, b, c, d) {
   state[a] = state[a].add(state[b])
@@ -74,7 +75,11 @@ function blake2bG (state, a, b, c, d) {
   return state
 }
 
-// One Round of the Blake2b's compression function
+/**
+ * One Round of the Blake2b's compression function
+ * @param {import('long')[]} state
+ * @returns {import('long')[]}
+ */
 function roundLyra (state) {
   state = blake2bG(state, 0, 4, 8, 12)
   state = blake2bG(state, 1, 5, 9, 13)
@@ -89,11 +94,11 @@ function roundLyra (state) {
 
 /**
  * Executes G function, with all 12 rounds for Blake2b
- * @param {*} state A 1024 bit (16 times of our custom long) to be processed by Blake2b
+ * @param {import('long')[]} state A 1024 bit (16 times of our custom long) to be processed by Blake2b
+ * @returns {import('long')[]}
  */
 function spongeLyra (state) {
-  var i
-  for (i = 0; i < 12; i++) {
+  for (let i = 0; i < 12; i++) {
     state = roundLyra(state)
   }
   return state
@@ -190,10 +195,9 @@ module.exports = {
   initState,
   rotr64,
   blake2bG,
+  roundLyra,
   spongeLyra,
   squeeze,
-  roundLyra,
-  // spongeLyra,
   absorbColumn,
   absorbBlockBlake2bSafe
 }
