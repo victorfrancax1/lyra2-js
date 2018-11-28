@@ -1,0 +1,22 @@
+{
+  "name": "lyra2",
+  "version": "1.0.0",
+  "description": "Native javascript implementation of [Lyra2](https://github.com/leocalm/Lyra/tree/master/Lyra2) algorithm.",
+  "main": "Sponge.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/victorfrancax1/lyra2-js.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/victorfrancax1/lyra2-js/issues"
+  },
+  "homepage": "https://github.com/victorfrancax1/lyra2-js#readme",
+  "dependencies": {
+    "long": "4.0.0"
+  }
+}

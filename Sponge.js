@@ -104,8 +104,8 @@ function initState () {
 
 /**
  *   Performs an absorb operation of single column from "in", using the full-round G function as the internal permutation
- * @param {*} state The current state of the sponge
- * @param {*} inCol The row whose column (BLOCK_LEN_INT64 words) should be absorbed
+ * @param {import('long')} state The current state of the sponge
+ * @param {import('long')[]} inCol The row whose column (BLOCK_LEN_INT64 words) should be absorbed
  */
 function absorbColumn (state, inCol) {
   // absorbs the column picked

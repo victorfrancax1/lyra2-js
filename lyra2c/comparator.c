@@ -57,6 +57,14 @@ int main() {
   uint64_t state[16];
 
   uint64_t column = 0x1f83d9aCDbAAbd6bULL;
+
+  uint64_t columns[12] = {
+    0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL,
+    0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL,
+    0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL,
+    0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL, 0x1f83d9aCDbAAbd6bULL
+  };
+
   initState(state);
 
   printf("This will be our comparator file:\n\n\n");
@@ -86,8 +94,12 @@ int main() {
   spongeLyra(state);
   printState(state);
 
-  printf("absorbColumn(state, column)\n");
-  absorbColumn(&state, &column);
+  // printf("absorbColumn(state, column)\n");
+  // absorbColumn(&state, &columns);
+  // printState(state);
+
+  printf("absorbBlockBlake2Safe(state, column)\n");
+  absorbBlockBlake2Safe(&state, &columns);
   printState(state);
 
   printf("\n\n");
