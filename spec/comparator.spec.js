@@ -1,4 +1,6 @@
-const { getLongStr, getLongsStr } = require('../utils')
+'use strict'
+const { getLongStr, getLongsStr, byteFormat } = require('../utils')
+const Long = require('long')
 const {
   BLAKE2B_IV,
   initState,
@@ -7,9 +9,9 @@ const {
   roundLyra,
   spongeLyra,
   absorbColumn,
-  absorbBlockBlake2bSafe
+  absorbBlockBlake2bSafe,
+  squeeze
 } = require('../Sponge')
-const Long = require('long')
 const COMPARATOR_TEST = {
   InitState: 0,
   Rotr64: 1,
@@ -17,7 +19,8 @@ const COMPARATOR_TEST = {
   roundLyra: 3,
   spongeLyra: 4,
   absorbColumn: 5,
-  absorbBlockBlake2bSafe: 6
+  absorbBlockBlake2bSafe: 6,
+  squeeze: 7
 }
 
 const tests = {
@@ -50,6 +53,12 @@ const tests = {
       arr.push(new Long(0xDbAAbd6b, 0x1f83d9aC, true))
     }
     return getLongsStr(absorbBlockBlake2bSafe(state, arr))
+  },
+  '7': () => {
+    let state = initState()
+    state = spongeLyra(state)
+    const sqResult = squeeze(state, 10)
+    console.log(sqResult[0].map(d => byteFormat(d)))
   }
 }
 

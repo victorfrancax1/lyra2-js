@@ -36,9 +36,28 @@ function longStringify (arr) {
   return result
 }
 
+/**
+ * Formats decimal number into byte string with any length
+ *
+ * Ex: 26, 2 // => '1A'
+ *
+ * Ex: 10, 1 // => 'A'
+ *
+ * Ex: 10, 2 // => '0A'
+ * @param {Number} decimal
+ * @param {Number} length Minimum length (Padding)
+ * @returns {String}
+ */
+const byteFormat = (decimal, length = 2) => {
+  let result = decimal.toString(16).toUpperCase()
+  while (result.length < length) result = '0' + result
+  return result
+}
+
 module.exports = {
   long64Pad,
   longStringify,
   getLongsStr,
-  getLongStr
+  getLongStr,
+  byteFormat
 }

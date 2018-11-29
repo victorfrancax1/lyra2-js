@@ -46,6 +46,12 @@ void printState(uint64_t state[]) {
   printf("Hex[15]: %016llX\n\n", state[15]);
 }
 
+void printCharPointerBytes(char* p, int n) {
+  for (int i = 0; i < n; i++) {
+    unsigned char c = ((char*)p)[i] ;
+    printf ("%02X", c) ;
+  }
+}
 /*
 Converte string para int
 */
@@ -130,9 +136,10 @@ void testAbsorbBlockBlake2Safe(uint64_t state[]) {
 }
 
 void testSqueeze(uint64_t state[]) {
-  char* salvaAquiBruxao = malloc(sizeof(char) * 10);
+  char* salvaAquiBruxao = malloc(10);
+  spongeLyra(state);
   squeeze(state, salvaAquiBruxao, 10);
-  printf(salvaAquiBruxao);
+  printCharPointerBytes(salvaAquiBruxao, 10);
 }
 
 int main (int argc, char **argv) {

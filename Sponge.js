@@ -134,6 +134,42 @@ function absorbBlockBlake2bSafe (state, inBlock) {
   return spongeLyra(state)
 }
 
+/**
+ * Performs a squeeze operation, using G function as the internal permutation
+ * @param {import('long')} state The current state of the sponge
+ * @param {Number} len The number of bytes to be squeezed into the "out" array
+ */
+function squeeze (state, len) {
+  // prep
+  len *= 8
+  const fullBlocks = Math.floor(len / BLOCK_LEN_BITS)
+  let start = 0
+  let end = BLOCK_LEN_BITS
+  let binOut = ''
+  let state1024 = utils.longStringify(state)
+
+  if (fullBlocks === 0) {
+    // squeezes only remaining bytes
+    binOut += state1024.substring(start, start + (len % BLOCK_LEN_BITS))
+  } else {
+    // squeezes full blocks
+    for (let i = 0; i < fullBlocks; i++) {
+      binOut += state1024.substring(start, end)
+      start = end
+      end += BLOCK_LEN_BITS
+      state = spongeLyra(state)
+      state1024 = utils.longStringify(state)
+    }
+    // squeezes remaining bytes
+    binOut += state1024.substring(start, start + (len % BLOCK_LEN_BITS))
+  }
+  const binSplitted = []
+  for (let i = 0; i < binOut.length; i += 8) {
+    binSplitted.push(parseInt(binOut.slice(i, i + 8), 2))
+  }
+  return [binSplitted, state]
+}
+
 // /**
 //  * Executes a reduced version G function, with 1 round for Blake2b
 //  * @param {*} state A 1024 bit (16 times of our custom long) to be processed by Blake2b
@@ -148,38 +184,6 @@ function absorbBlockBlake2bSafe (state, inBlock) {
 //* ** Absorb Functions ***
 
 //* ** Squeeze Functions ***
-
-/**
- * Performs a squeeze operation, using G function as the internal permutation
- * @param {*} state The current state of the sponge
- * @param {*} len The number of bytes to be squeezed into the "out" array
- */
-function squeeze (state, len) {
-  // prep
-  len = 8 * len
-  var fullBlocks = Math.floor(len / BLOCK_LEN_BITS)
-  var start = 0
-  var end = BLOCK_LEN_BITS
-  var out = ''
-  var state1024 = utils.longStringify(state)
-
-  if (fullBlocks === 0) {
-    // squeezes only remaining bytes
-    out += state1024.substring(start, start + (len % BLOCK_LEN_BITS))
-  } else {
-    // squeezes full blocks
-    for (var i = 0; i < fullBlocks; i++) {
-      out += state1024.substring(start, end)
-      start = end
-      end += BLOCK_LEN_BITS
-      state = spongeLyra(state)
-      state1024 = utils.longStringify(state)
-    }
-    // squeezes remaining bytes
-    out += state1024.substring(start, start + (len % BLOCK_LEN_BITS))
-  };
-  return [out, state]
-}
 
 // function reducedSqueezeRow0 () {}
 
