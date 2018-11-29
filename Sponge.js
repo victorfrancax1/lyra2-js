@@ -142,15 +142,14 @@ function absorbBlockBlake2bSafe (state, inBlock) {
 function squeeze (state, len) {
   // prep
   len *= 8
-  const fullBlocks = Math.floor(len / BLOCK_LEN_BITS)
+  const fullBlocks = Math.floor(len / BLOCK_LEN_BYTES)
   let start = 0
   let end = BLOCK_LEN_BITS
   let binOut = ''
   let state1024 = utils.longStringify(state)
-
   if (fullBlocks === 0) {
     // squeezes only remaining bytes
-    binOut += state1024.substring(start, start + (len % BLOCK_LEN_BITS))
+    binOut += state1024.substring(1024 - (len % BLOCK_LEN_BITS))
   } else {
     // squeezes full blocks
     for (let i = 0; i < fullBlocks; i++) {
@@ -163,10 +162,12 @@ function squeeze (state, len) {
     // squeezes remaining bytes
     binOut += state1024.substring(start, start + (len % BLOCK_LEN_BITS))
   }
+
   const binSplitted = []
   for (let i = 0; i < binOut.length; i += 8) {
     binSplitted.push(parseInt(binOut.slice(i, i + 8), 2))
   }
+  binSplitted.reverse()
   return [binSplitted, state]
 }
 

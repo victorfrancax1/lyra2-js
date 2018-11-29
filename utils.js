@@ -32,7 +32,7 @@ const getLongStr = (long) => {
 }
 // receives long array (blake2b's state) and returns 1024bit binary string
 function longStringify (arr) {
-  var result = long64Pad(arr).reduce((x, y) => x + y)
+  var result = long64Pad(arr).reduce((x, y) => y + x)
   return result
 }
 

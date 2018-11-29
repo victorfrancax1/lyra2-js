@@ -386,16 +386,19 @@ inline void absorbColumn(uint64_t *state, uint64_t *in) {
  */
 inline void squeeze(uint64_t *state, byte *out, unsigned int len) {
     int fullBlocks = len / BLOCK_LEN_BYTES;
+    printf("Ae seu pau no cu%d\n", fullBlocks);
     byte *ptr = out;
     int i;
     //Squeezes full blocks
     for (i = 0; i < fullBlocks; i++) {
+      printf("Ronaldo");
 	memcpy(ptr, state, BLOCK_LEN_BYTES);
 	spongeLyra(state);
 	ptr += BLOCK_LEN_BYTES;
     }
 
     //Squeezes remaining bytes
+    printf("O baguio eh sinistro %d\n", (len % BLOCK_LEN_BYTES));
     memcpy(ptr, state, (len % BLOCK_LEN_BYTES));
 }
 
