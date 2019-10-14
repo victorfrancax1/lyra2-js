@@ -135,11 +135,20 @@ void testAbsorbBlockBlake2Safe(uint64_t state[]) {
   printState(state);
 }
 
-void testSqueeze(uint64_t state[]) {
-  char* salvaAquiBruxao = malloc(10);
+void testReducedSqueezeRow0(uint64_t state[]) {
+  uint64_t* minhaPica = malloc(64);
   spongeLyra(state);
-  squeeze(state, salvaAquiBruxao, 10);
-  printCharPointerBytes(salvaAquiBruxao, 10);
+  reducedSqueezeRow0(state, minhaPica);
+  printCharPointerBytes(minhaPica, 64);
+  printf("\n");
+  printState(state);
+}
+
+void testSqueeze(uint64_t state[]) {
+  char* salvaAquiBruxao = malloc(98);
+  spongeLyra(state);
+  squeeze(state, salvaAquiBruxao, 98);
+  printCharPointerBytes(salvaAquiBruxao, 98);
 }
 
 int main (int argc, char **argv) {
@@ -193,6 +202,10 @@ int main (int argc, char **argv) {
     case 7:
       printf("Test squeeze()\n");
       testSqueeze(state);
+      break;
+    case 8:
+      printf("Test reducedSqueezeRow0()\n");
+      testReducedSqueezeRow0(state);
       break;
     default:
       break;

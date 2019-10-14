@@ -57,7 +57,7 @@ const tests = {
   '7': () => {
     let state = initState()
     state = spongeLyra(state)
-    const sqResult = squeeze(state, 10)
+    const sqResult = squeeze(state, 98)
     console.log(sqResult[0].map(d => byteFormat(d)))
   }
 }
