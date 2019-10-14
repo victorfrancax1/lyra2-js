@@ -1,49 +1,210 @@
-// library used to emulate uint64_t numbers
-var Long  = require('long');
+'use strict'
 
-//Blake2b IV array
-var BLAKE2B_IV = [
-	new Long(0x6a09e667f3bcc908),
-	new Long(0xbb67ae8584caa73b),
-	new Long(0x3c6ef372fe94f82b),
-	new Long(0xa54ff53a5f1d36f1),
-	new Long(0x510e527fade682d1),
-	new Long(0x9b05688c2b3e6c1f),
-	new Long(0x1f83d9abfb41bd6b),
-	new Long(0x5be0cd19137e2179),
+const Long = require('long')
+const utils = require('./utils')
+
+// const RHO = 1
+// const BLOCK_LEN_BLAKE2_SAFE_INT64 = 8 // 512 bits (=64 bytes, =8 uint64_t)
+// const BLOCK_LEN_BLAKE2_SAFE_BYTES = (BLOCK_LEN_BLAKE2_SAFE_INT64 * 8) // same as above, in bytes
+
+// default block length: 768 bits
+const BLOCK_LEN_INT64 = 12
+const BLOCK_LEN_BYTES = (BLOCK_LEN_INT64 * 8)
+const BLOCK_LEN_BITS = (BLOCK_LEN_BYTES * 8)
+
+// Blake2b IV array
+const BLAKE2B_IV = [
+  new Long(0xf3bcc908, 0x6a09e667, true),
+  new Long(0x84caa73b, 0xbb67ae85, true),
+  new Long(0xfe94f82b, 0x3c6ef372, true),
+  new Long(0x5f1d36f1, 0xa54ff53a, true),
+  new Long(0xade682d1, 0x510e527f, true),
+  new Long(0x2b3e6c1f, 0x9b05688c, true),
+  new Long(0xfb41bd6b, 0x1f83d9ab, true),
+  new Long(0x137e2179, 0x5be0cd19, true)
 ]
 
-//Blake2b rotation
-function rotr64(w,c){
-
-	var a = w.shr_u(c);
-	var b = w.shr_u(64 - c);
-
-	return a.or(b);
+/**
+ * Initializes the Sponge's State. The first 512 bits are set to zeros and the remainder
+   receive Blake2b's IV as per Blake2b's specification.
+  @returns {import('long')[]} state - The 1024-bit array to be initialized
+ */
+function initState () {
+  // Set first 512 bits to zeros (8 * 64bit numbers)
+  const state = []
+  for (let i = 0; i < 8; i++) {
+    state.push(Long.UZERO)
+  }
+  // Set next 8 to Blake2b's IV
+  for (let i = 0; i < 8; i++) {
+    state.push(BLAKE2B_IV[i])
+  }
+  return state
 }
 
-//Blake2b's G function
-//it appears that r and i arent used
-function blake2bG(r,i,a,b,c,d){
-	a = a.add(b);
-	d = rotr64(d.xor(a), 32);
-	c = c.add(d);
-	b = rotr64(b.xor(c), 24);
-	a = a.add(b);
-	d = rotr64(d.xor(a), 16);
-	c = c.add(d);
-	d = rotr64(b.xor(c), 63);
+/**
+ * Blake2b rotation
+ * @param {import('long')} w long
+ * @param {Number} c number of rotations
+ * @returns {import('long')}
+ */
+function rotr64 (w, c) {
+  const a = w.shr_u(c)
+  const b = w.shl(64 - c)
+  return a.or(b)
 }
 
-//One Round of the Blake2b's compression function
-//it appears that r and i arent used
-function roundLyra(r){
-	G(r,0,v[ 0],v[ 4],v[ 8],v[12]);
-    G(r,1,v[ 1],v[ 5],v[ 9],v[13]);
-    G(r,2,v[ 2],v[ 6],v[10],v[14]);
-    G(r,3,v[ 3],v[ 7],v[11],v[15]);
-    G(r,4,v[ 0],v[ 5],v[10],v[15]);
-    G(r,5,v[ 1],v[ 6],v[11],v[12]); 
-    G(r,6,v[ 2],v[ 7],v[ 8],v[13]); 
-    G(r,7,v[ 3],v[ 4],v[ 9],v[14]);
+/**
+ * Blake2b's G function
+ * @param {import('long')[]} state
+ * @param {Number} a
+ * @param {Number} b
+ * @param {Number} c
+ * @param {Number} d
+ * @returns {import('long')[]}
+ */
+function blake2bG (state, a, b, c, d) {
+  state[a] = state[a].add(state[b])
+  state[d] = rotr64(state[d].xor(state[a]), 32)
+  state[c] = state[c].add(state[d])
+  state[b] = rotr64(state[b].xor(state[c]), 24)
+  state[a] = state[a].add(state[b])
+  state[d] = rotr64(state[d].xor(state[a]), 16)
+  state[c] = state[c].add(state[d])
+  state[b] = rotr64(state[b].xor(state[c]), 63)
+  return state
+}
+
+/**
+ * One Round of the Blake2b's compression function
+ * @param {import('long')[]} state
+ * @returns {import('long')[]}
+ */
+function roundLyra (state) {
+  state = blake2bG(state, 0, 4, 8, 12)
+  state = blake2bG(state, 1, 5, 9, 13)
+  state = blake2bG(state, 2, 6, 10, 14)
+  state = blake2bG(state, 3, 7, 11, 15)
+  state = blake2bG(state, 0, 5, 10, 15)
+  state = blake2bG(state, 1, 6, 11, 12)
+  state = blake2bG(state, 2, 7, 8, 13)
+  state = blake2bG(state, 3, 4, 9, 14)
+  return state
+}
+
+/**
+ * Executes G function, with all 12 rounds for Blake2b
+ * @param {import('long')[]} state A 1024 bit (16 times of our custom long) to be processed by Blake2b
+ * @returns {import('long')[]}
+ */
+function spongeLyra (state) {
+  for (let i = 0; i < 12; i++) {
+    state = roundLyra(state)
+  }
+  return state
+}
+
+/**
+ *   Performs an absorb operation of single column from "in", using the full-round G function as the internal permutation
+ * @param {import('long')} state The current state of the sponge
+ * @param {import('long')[][]} inCol The row whose column (BLOCK_LEN_INT64 words) should be absorbed
+ * @returns {import('long')[]}
+ */
+function absorbColumn (state, inCol) {
+  // absorbs the column picked
+  for (let i = 0; i < BLOCK_LEN_INT64; i++) {
+    state[i] = state[i].xor(inCol[i])
+  }
+  // applies full-round transformation to the sponge's state
+  return spongeLyra(state)
+}
+
+/**
+ * Performs an absorb operation for a single block (BLOCK_LEN_BLAKE2_SAFE_INT64 words of type Long, 64 bits), using G function as the internal permutation
+ * @param {import('long')[]} state The current state of the sponge
+ * @param {import('long')[][]} inBlock The block to be absorbed (BLOCK_LEN_BLAKE2_SAFE_INT64 words)
+ * @returns {import('long')[]}
+ */
+function absorbBlockBlake2bSafe (state, inBlock) {
+  // XORs the first BLOCK_LEN_BLAKE2_SAFE_INT64 words of inBlock with the current state
+  for (let i = 0; i < 8; i++) {
+    state[i] = state[i].xor(inBlock[i])
+  }
+  // Applies the full-round transformation f to the sponge's state
+  return spongeLyra(state)
+}
+
+/**
+ * Performs a squeeze operation, using G function as the internal permutation
+ * @param {import('long')} state The current state of the sponge
+ * @param {Number} len The number of bytes to be squeezed into the "out" array
+ */
+function squeeze (state, len) {
+  // prep
+  len *= 8
+  const fullBlocks = Math.floor(len / BLOCK_LEN_BYTES)
+  let start = 0
+  let end = BLOCK_LEN_BITS
+  let binOut = ''
+  let state1024 = utils.longStringify(state)
+  if (fullBlocks === 0) {
+    // squeezes only remaining bytes
+    binOut += state1024.substring(1024 - (len % BLOCK_LEN_BITS))
+  } else {
+    // squeezes full blocks
+    for (let i = 0; i < fullBlocks; i++) {
+      binOut += state1024.substring(start, end)
+      start = end
+      end += BLOCK_LEN_BITS
+      state = spongeLyra(state)
+      state1024 = utils.longStringify(state)
+    }
+    // squeezes remaining bytes
+    binOut += state1024.substring(start, start + (len % BLOCK_LEN_BITS))
+  }
+
+  const binSplitted = []
+  for (let i = 0; i < binOut.length; i += 8) {
+    binSplitted.push(parseInt(binOut.slice(i, i + 8), 2))
+  }
+  binSplitted.reverse()
+  return [binSplitted, state]
+}
+
+// /**
+//  * Executes a reduced version G function, with 1 round for Blake2b
+//  * @param {*} state A 1024 bit (16 times of our custom long) to be processed by Blake2b
+//  */
+// function reducedSpongeLyra (state) {
+//   for (let i = 0; i < RHO; i++) {
+//     state = roundLyra(state)
+//   }
+//   return state
+// }
+
+//* ** Absorb Functions ***
+
+//* ** Squeeze Functions ***
+
+// function reducedSqueezeRow0 () {}
+
+//* ** Duplex Functions ***
+
+// function reducedDuplexRow1and2 () {}
+// function reducedDuplexRowFilling () {}
+// function reducedDuplexRowWandering () {}
+// function reducedDuplexRowWanderingParallel () {}
+
+//* ** Module definitions ***
+
+module.exports = {
+  BLAKE2B_IV,
+  initState,
+  rotr64,
+  blake2bG,
+  roundLyra,
+  spongeLyra,
+  absorbColumn,
+  absorbBlockBlake2bSafe,
+  squeeze
 }
